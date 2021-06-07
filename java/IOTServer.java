@@ -75,6 +75,7 @@ class IOTServer {
                 origin = splits[0];
                 if (origin.equals("BR")) // board is registering
                 {
+                    System.out.println("Command Receive:"+request);
                     i = 2;
                     boardID = splits[1];
                     electronicUnits = new LinkedList<>();
@@ -88,6 +89,8 @@ class IOTServer {
                     board.electronicUnits = electronicUnits;
                     boards.add(board);
                     response = "Got It#";
+                    System.out.println("Response Sent:"+response);
+
                     outputStream = socket.getOutputStream();
                     outputStreamWriter = new OutputStreamWriter(outputStream);
                     outputStreamWriter.write(response);
@@ -115,6 +118,7 @@ class IOTServer {
                     }
 
                     response += "#";
+                    System.out.println(response);
                     outputStream = socket.getOutputStream();
                     outputStreamWriter = new OutputStreamWriter(outputStream);
                     outputStreamWriter.write(response);
@@ -145,10 +149,32 @@ class IOTServer {
                         if (boardNameFound == false) {
                             response = "0#";
 
-                        } else if (deviceNameFound == false) {
+                        }
+                        else if(deviceName.toUpperCase().equals("ALL"))
+                        {
+                            commandsList = commands.get(boardName);
+                            if (commandsList == null) {
+                                commandsList = new LinkedList<>();
+                                commands.put(boardName, commandsList);
+                            }
+                            for (i = 0; i < boards.size(); i++) {
+                                board = boards.get(i);
+                                if (board.id.equals(boardName)) {
+                                    boardNameFound = true;
+                                    for (j = 0; j < board.electronicUnits.size(); j++) {
+                                        commandsList.add(board.electronicUnits.get(j)+","+splits[4]);
+                                    }
+                                    break;
+                                }
+                            } 
+                            response = "3#";
+
+                        }
+                        else if (deviceNameFound == false) {
                             response = "2#";
 
-                        } else {
+                        }
+                        else {
                             command = splits[3] + "," + splits[4];
                             commandsList = commands.get(boardName);
                             if (commandsList == null) {
